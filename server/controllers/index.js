@@ -3,7 +3,7 @@ const router = express.Router();
 
 //Ruta de inicio. se define una ruta inicial.
 router.get('/', (request, response) => {
-    console.log('main-view');
+    response.status(200).send({ message: 'main-view' });
 });
 
 module.exports = router;
