@@ -39,6 +39,7 @@ app.use(express.urlencoded({ extended: false }));
 
 /*---------- ROUTES -----------------*/
 app.use(require('./controllers'));
+app.use(require('./controllers/identity_controller'));
 /*-----------------------------------*/
 
 /*---------Init the server -------*/
