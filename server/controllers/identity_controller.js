@@ -1,10 +1,10 @@
-const { response, json } = require('express');
-const token_manager = require("../security/tokenManager");
-const message_manager = require("../messages/messageManager");
+const bcrypt = require('bcrypt');
 const express = require('express');
-const bcrypt = require("bcrypt");
 const router = express.Router();
-const db = require("../database_access/database_connection");
+const token_manager = require('../security/tokenManager');
+const db = require('../database_access/database_connection');
+const message_manager = require('../messages/messageManager');
+const { verifyAccessToken, verifyCredentials } = require('../middleware/auth');
 
 router.get("/signin", async (req, res) => {
     return res.status(202).json("get signin view method executed");
@@ -58,7 +58,7 @@ router.post("/signin", async (req, res) => {
                                 await db.func('get_superuser')
                                     .then(data => {
 
-                                        const jwt_token = token_manager.GenerateJwt(data);
+                                        const jwt_token = token_manager.GenerateJwt(data, "sp");
 
                                         return res.status(201).json({
                                             name: data.user_name,
@@ -90,8 +90,28 @@ router.post("/signin", async (req, res) => {
         });
 });
 
-router.post("/login", async (req, res) => {
-    return res.status(202).json("this method will send back a token and will open a session");
+router.post("/login", verifyCredentials, async (req, res) => {
+
+    await db.func('validate_user', [req.body.email])
+        .then(data => {
+
+            bcrypt.compare(req.body.password, data[0].user_password, (err, hash) => {
+
+                if (err) return res.status(401).json(message_manager.UnauthorizedCustomMessage(err.message));
+
+                const jwt_token = token_manager.GenerateJwt(data, "sp");
+
+                return res.status(200).json({
+                    name: data[0].user_name,
+                    last_name: data[0].user_last_name,
+                    access_token: jwt_token
+                });
+
+            })
+        })
+        .catch(error => {
+            return res.status(401).json(message_manager.UnauthorizedMessage());
+        })
 });
 
 router.post("/add_user", async (req, res) => {
@@ -106,8 +126,22 @@ router.post("/add_resource", async (req, res) => {
     return res.status(202).json("add resource method executed");
 });
 
-router.post("/generate_token", (req, res) => {
-    return res.status(202).json("new token generated");
+router.post("/generate_token", verifyAccessToken, (req, res) => {
+
+    const access_token = token_manager.GenerateJwt(req.body.decodedUser, "rt");
+    return res.status(202).json({ access_token: access_token });
 });
+
+
+// const getAllDepartments = () => {
+// 	return new Promise((resolve, reject) => {
+// 		const url = 'https://backendapi.turing.com/departments';
+// 		request({ url, json: true }, (error, { body }) => {
+// 			if (error) reject(error);
+
+// 			resolve(body);
+// 		});
+// 	});
+// };
 
 module.exports = router;
