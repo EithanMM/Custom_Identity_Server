@@ -6,6 +6,11 @@ const db = require('../database_access/database_connection');
 const message_manager = require('../messages/messageManager');
 const { verifyAccessToken, verifyCredentials } = require('../middleware/auth');
 
+
+router.get('/', (req, res) => {
+    response.status(200).send({ message: 'main-identity-view' });
+});
+
 router.get("/signin", async (req, res) => {
     return res.status(202).json("get signin view method executed");
 });
@@ -106,7 +111,6 @@ router.post("/login", verifyCredentials, async (req, res) => {
                     last_name: data[0].user_last_name,
                     access_token: jwt_token
                 });
-
             })
         })
         .catch(error => {

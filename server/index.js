@@ -1,3 +1,5 @@
+const publicEndpointsRoutes = require('./controllers/public_endpoint_controller');
+const identityRoutes = require('./controllers/identity_controller');
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 const express = require("express");
@@ -52,8 +54,8 @@ app.use((req, res, next) => {
 /*----------------------------------*/
 
 /*---------- ROUTES -----------------*/
-app.use(require('./controllers'));
-app.use(require('./controllers/identity_controller'));
+app.use('/identity', identityRoutes);
+app.use('/public_endpoint', publicEndpointsRoutes);
 /*-----------------------------------*/
 
 /*---------Init the server -------*/
