@@ -1,5 +1,5 @@
-const publicEndpointsRoutes = require('./controllers/public_endpoint_controller');
-const identityRoutes = require('./controllers/identity_controller');
+const publicEndpointsRoutes = require('./routes/public_endpoint_routes');
+const identityRoutes = require('./routes/identity_routes');
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 const express = require("express");
