@@ -1,3 +1,5 @@
+const publicEndpointsRoutes = require('./routes/public_endpoint_routes');
+const identityRoutes = require('./routes/identity_routes');
 const swaggerUI = require("swagger-ui-express");
 const swaggerJsDoc = require("swagger-jsdoc");
 const express = require("express");
@@ -37,9 +39,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+/*----------- Middleware ------------*/
+//* To prevent CORS problems when other apps consume the Api (public controllers)
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+    if (req.method === 'OPTIONS') {
+        req.header('Access-Control-Allow-Methods', 'PUT, POST, GET');
+        return res.status(200).json({});
+    }
+    next();
+});
+/*----------------------------------*/
+
 /*---------- ROUTES -----------------*/
-app.use(require('./controllers'));
-app.use(require('./controllers/identity_controller'));
+app.use('/identity', identityRoutes);
+app.use('/public_endpoint', publicEndpointsRoutes);
 /*-----------------------------------*/
 
 /*---------Init the server -------*/
