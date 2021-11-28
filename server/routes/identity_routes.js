@@ -23,18 +23,22 @@ router.get("/get_system:id", IdentityController.GetSystemById);
 
 router.get("/get_user:id", IdentityController.GetUserById);
 
-/*--------------------------------------------------------*/
+
+
 router.post("/signin", IdentityController.RegisterAdministrator);
 
 router.post("/login", verifyCredentials, IdentityController.LogInUser);
 
-router.post("/add_user", IdentityController.Adduser);
+router.post('/add_rol', verifyAccessToken, IdentityController.AddRol);
+
+router.post("/add_user", verifyAccessToken, IdentityController.Adduser);
 
 router.post("/add_system", IdentityController.AddSystem);
 
 router.post("/add_resource", IdentityController.AddResource);
 
 router.post("/generate_token", verifyAccessToken, IdentityController.GenerateToken);
+
 
 
 module.exports = router;

@@ -111,8 +111,62 @@ exports.LogInUser = async (req, res) => {
         })
 };
 
+exports.AddRol = async (req, res) => {
+
+    let rolName = req.body.name;
+    let rolDesc = req.body.description;
+
+    rolName = (rolName === undefined || rolName === "") ? null : rolName;
+    rolDesc = (rolDesc === undefined || rolDesc === "") ? null : rolDesc;
+
+    await db.proc('add_rol', [rolName, rolDesc, null])
+        .then(data => {
+            return res.status(201).json({ response: data.response });
+        })
+        .catch(error => {
+            return res.status(500).json(message_manager.UnauthorizedCustomMessage(error));
+        })
+};
+
 exports.Adduser = async (req, res) => {
-    return res.status(202).json("get resource by id method executed");
+
+    const incomingUser = req.body;
+
+    incomingUser.id_rol = (
+        incomingUser.id_rol === "" ||
+        incomingUser.id_rol === undefined ||
+        incomingUser.id_rol === 0) ? null : incomingUser.id_rol;
+
+    incomingUser.id_system = (
+        incomingUser.id_system === "" ||
+        incomingUser.id_system === undefined ||
+        incomingUser.id_system === 0) ? null : incomingUser.id_system;
+
+    await db.func('validate_user', [incomingUser.email])
+        .then(data => {
+
+            if (data.email == null) {
+
+                bcrypt.hash(incomingUser.password, 10)
+                    .then(async (hashPassword) => {
+
+                        await db.proc('add_user', [incomingUser.name, incomingUser.last_name, hashPassword, incomingUser.email, incomingUser.id_rol, incomingUser.id_system, null])
+                            .then(async data => {
+
+                                if (data.response != "OK") throw new Error(data.response);
+                                return res.status(201).json({ response: data.response });
+                            })
+                            .catch(error => {
+                                return res.send(message_manager.UnauthorizedMessage());
+                            });
+                    })
+                    .catch(error => {
+                        return res.send(message_manager.UnauthorizedMessage());
+                    });
+            } else {
+                return res.send(message_manager.UnauthorizedMessage());
+            }
+        })
 };
 
 exports.AddSystem = async (req, res) => {
