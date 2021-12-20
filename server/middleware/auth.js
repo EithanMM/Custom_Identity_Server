@@ -6,7 +6,12 @@ const message_manager = require("../messages/messageManager");
 
 exports.verifyAccessToken = (req, res, next) => {
 
-    const access_token = req.headers.authorization.split(" ")[1];
+    let access_token = req.headers.authorization;
+
+    if (access_token === undefined) return res.status(401).json(message_manager.UnauthorizedMessage());
+
+    access_token = access_token.split(" ")[1];
+
     jwt.verify(access_token, process.env.APP_SECRET, { ignoreExpiration: false }, (err, decoded) => {
 
         if (err) return res.status(401).json(message_manager.UnauthorizedCustomMessage(err.message));

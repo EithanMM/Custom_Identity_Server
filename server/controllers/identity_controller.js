@@ -153,24 +153,45 @@ exports.Adduser = async (req, res) => {
                         await db.proc('add_user', [incomingUser.name, incomingUser.last_name, hashPassword, incomingUser.email, incomingUser.id_rol, incomingUser.id_system, null])
                             .then(async data => {
 
-                                if (data.response != "OK") throw new Error(data.response);
+                                if (data.response != "OK") throw new Error();
                                 return res.status(201).json({ response: data.response });
                             })
                             .catch(error => {
-                                return res.send(message_manager.UnauthorizedMessage());
+                                return res.status(401).send(message_manager.UnauthorizedMessage());
                             });
                     })
                     .catch(error => {
-                        return res.send(message_manager.UnauthorizedMessage());
+                        return res.status(401).send(message_manager.UnauthorizedMessage());
                     });
             } else {
-                return res.send(message_manager.UnauthorizedMessage());
+                return res.status(401).send(message_manager.UnauthorizedMessage());
             }
         })
 };
 
 exports.AddSystem = async (req, res) => {
-    return res.status(202).json("add system method executed");
+
+    const incomingSystem = req.body;
+
+    if (incomingSystem.name === undefined || incomingSystem.name === "") throw new Error();
+
+    incomingSystem.description = (
+        incomingSystem.description === "" ||
+        incomingSystem.description === undefined) ? null : incomingSystem.description;
+
+    incomingSystem.initials = (
+        incomingSystem.initials === "" ||
+        incomingSystem.initials === undefined) ? null : incomingSystem.initials;
+
+    await db.proc('add_system', [incomingSystem.name, incomingSystem.description, incomingSystem.initials])
+        .then(data => {
+
+            if (data.response != "OK") throw new Error();
+            return res.status(201).json({ response: data.response });
+        })
+        .catch(error => {
+            return res.status(401).send(message_manager.UnauthorizedMessage());
+        });
 };
 
 exports.AddResource = async (req, res) => {
