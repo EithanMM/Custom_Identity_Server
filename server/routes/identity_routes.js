@@ -33,9 +33,9 @@ router.post('/add_rol', verifyAccessToken, IdentityController.AddRol);
 
 router.post("/add_user", verifyAccessToken, IdentityController.Adduser);
 
-router.post("/add_system", IdentityController.AddSystem);
+router.post("/add_system", verifyAccessToken, IdentityController.AddSystem);
 
-router.post("/add_resource", IdentityController.AddResource);
+router.post("/add_resource", verifyAccessToken, IdentityController.AddResource);
 
 router.post("/generate_token", verifyAccessToken, IdentityController.GenerateToken);
 
